@@ -2,6 +2,7 @@ import sys
 import bs4
 import json
 import rfeed
+import datetime
 
 BeautifulSoup = lambda data: bs4.BeautifulSoup(data, features="lxml")
 
@@ -14,8 +15,14 @@ def append_p(p):
         return str(p)
 
 
+now = datetime.datetime.now()
+
+
 with open(sys.argv[1]) as md_f:
     soup = BeautifulSoup(md_f.read())
+
+    # remove tracking image
+    soup.find_all("img")[-1].parent.clear()
 
     feed = rfeed.Feed(
         title="Morning Mail",
@@ -26,14 +33,16 @@ with open(sys.argv[1]) as md_f:
                 title=p.find_previous("h3").get_text(),
                 link=p.find_previous("h3").find("a").get("href"),
                 description=append_p(p),
-                author=p.find_previous("h2").get_text(),
                 guid=rfeed.Guid(p.find_previous("h3").find("a").get("href")),
+                pubDate=now,
+                author=p.find_previous("h2").get_text(),
             )
             for p in soup.find_all("p")
             if p.find_previous("h3") is not None
             and p.find_previous("p").find_previous("h3") != p.find_previous("h3")
         ],
         link="https://morningmail.rpi.edu/",
+        lastBuildDate=now,
     )
 
     print(feed.rss())
