@@ -23,8 +23,13 @@ jobs:
           CONTENT: ${{ github.event.issue.body }}
         run: |
           echo "$CONTENT" > mm.md
-          mdsplit -l 3 mm.md
-          tree
+          mdsplit -t -l 3 mm.md
+
+      - name: Call webhook
+        working-directory:
+          mm
+        run: |
+          # do stuff later
 
       - name: Close issue
         run: gh issue close "$NUMBER"
