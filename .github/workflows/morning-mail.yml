@@ -6,7 +6,10 @@ on:
 
 jobs:
   handle-issue:
-    # Avoid spam issues
+    permissions:
+      issues: write
+      
+    # Filter out non-email-generated issues
     if: ${{ github.event.issue.user.login }} == "fire-bot"
     runs-on: ubuntu-latest
     
