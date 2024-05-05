@@ -27,7 +27,7 @@ with open(sys.argv[1]) as md_f:
                 link=p.find_previous("h3").find("a").get("href"),
                 description=append_p(p),
                 author=p.find_previous("h2").get_text(),
-                guid=rfeed.Guid(p.find_previous("h3").find("a").get("href"))
+                guid=rfeed.Guid(p.find_previous("h3").find("a").get("href")),
             )
             for p in soup.find_all("p")
             if p.find_previous("h3") is not None
