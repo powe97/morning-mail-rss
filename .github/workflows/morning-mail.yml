@@ -14,11 +14,17 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Print contents
+      - name: Install mdsplit
         run: |
-          echo "$CONTENT"
+          pip install mdsplit
+
+      - name: Split markdown
         env:
           CONTENT: ${{ github.event.issue.body }}
+        run: |
+          echo "$CONTENT" > mm.md
+          mdsplit -l 3 mm.md
+          tree
 
       - name: Close issue
         run: gh issue close "$NUMBER"
