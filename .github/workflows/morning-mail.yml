@@ -1,13 +1,14 @@
 name: Receive Morning Mail
 on:
-  workflow_dispatch:
-  repository_dispatch:
+  issues:
     types:
-      morning-mail
+      - opened
 
 jobs:
-  build:
+  label_issue:
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          echo "payload: ${{ toJson(github.event.client_payload) }}"
+      - env:
+          CONTENT: ${{ github.event.issue.body }}
+        run: |
+          echo "$CONTENT"
