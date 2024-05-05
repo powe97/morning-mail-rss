@@ -6,30 +6,44 @@ on:
 
 jobs:
   handle-issue:
-    permissions:
-      issues: write
+    permissions: write
       
     # Filter out non-email-generated issues
     if: ${{ github.event.issue.user.login }} == "fire-bot"
     runs-on: ubuntu-latest
     
     steps:
-      - name: Install mdsplit
-        run: |
-          pip install mdsplit
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - name: Split markdown
+      - name: Set up python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install pandoc and requirements
+        run: |
+          apt-get install pandoc
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Save markdown and convert to html
         env:
           CONTENT: ${{ github.event.issue.body }}
         run: |
           echo "$CONTENT" > mm.md
-          mdsplit -t -l 3 mm.md
+          pandoc --wrap=preserve mm.md -o mm.html
 
-      - name: Call webhook
-        working-directory:
-          mm
+      - name: Run HTML to RSS converter
         run: |
-          # do stuff later
+          python html_to_rss.py mm.html > morning-mail.rss
+       
+      - name: Commit
+        run: |
+          git add morning-mail.rss
+          git commit -m "$(date)"
+          git push
 
       - name: Close issue
         run: gh issue close "$NUMBER"
